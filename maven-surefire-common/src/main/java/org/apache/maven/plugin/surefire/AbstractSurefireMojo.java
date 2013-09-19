@@ -60,6 +60,7 @@ import org.apache.maven.plugin.surefire.booterclient.ForkConfiguration;
 import org.apache.maven.plugin.surefire.booterclient.ForkStarter;
 import org.apache.maven.plugin.surefire.util.DependencyScanner;
 import org.apache.maven.plugin.surefire.util.DirectoryScanner;
+import org.apache.maven.plugin.surefire.util.JvmSettingsCopier;
 import org.apache.maven.plugins.annotations.Component;
 import org.apache.maven.plugins.annotations.Parameter;
 import org.apache.maven.project.MavenProject;
@@ -1740,7 +1741,7 @@ public abstract class AbstractSurefireMojo
         return new ForkConfiguration( bootClasspathConfiguration, tmpDir, getEffectiveDebugForkedProcess(),
                                       getEffectiveJvm(),
                                       getWorkingDirectory() != null ? getWorkingDirectory() : getBasedir(),
-                                      getArgLine(), getEnvironmentVariables(), getLog().isDebugEnabled(),
+                                      getEffectiveArgLine(), getEnvironmentVariables(), getLog().isDebugEnabled(),
                                       getEffectiveForkCount(), reuseForks );
     }
 
@@ -1830,6 +1831,17 @@ public abstract class AbstractSurefireMojo
         }
 
         return jvmToUse;
+    }
+
+    private String getEffectiveArgLine()
+    {
+        String argLine = getArgLine();
+        if(StringUtils.isEmpty(argLine))
+        {
+            return StringUtils.join(JvmSettingsCopier.getSupportedJVMSettings().toArray()," ");
+        }else{
+            return argLine;
+        }
     }
 
 
